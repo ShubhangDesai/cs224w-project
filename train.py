@@ -44,6 +44,9 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate):
     loss.backward()
     optimizer.step()
 
+    del data, train_idx, out
+    torch.cuda.empty_cache()
+
     return loss.item()
 
 @torch.no_grad()
@@ -65,6 +68,9 @@ def test(model, data, split_idx, evaluator):
         'y_true': data.y[split_idx['test']],
         'y_pred': y_pred[split_idx['test']],
     })['acc']
+    
+    del data, split_idx, out, y_pred
+    torch.cuda.empty_cache()
 
     return train_acc, valid_acc, test_acc
 

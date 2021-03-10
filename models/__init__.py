@@ -1,9 +1,9 @@
 from .IncepGCN import *
-from .GCN import *
+from .GNN import *
 
 def get_model(dataset, args):
-    if args['model_type'] in ['graphsage', 'gat']:
-        model_type = GCN
+    if args['model_type'] in ['gcn', 'graphsage', 'gat']:
+        model_type = GNN
     elif args['model_type'] == 'incepgcn':
         model_type = IncepGCN
 
