@@ -10,6 +10,7 @@ from .Dropedge import *
 class GNN(nn.Module):
     def __init__(self, input_dim, output_dim, args):
         super(GNN, self).__init__()
+        print("Input_dim: ", input_dim)
 
         self.dropedge = Dropedge(args['dropedge']) if args['dropedge'] != 0 else None
 
