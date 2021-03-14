@@ -8,8 +8,15 @@ def get_model(dataset, args):
         model_type = IncepGCN
 
 
-    print("Data num features and classes: ", dataset.num_node_features, dataset.num_classes)
-    model = model_type(dataset.num_node_features, dataset.num_classes, args)
+    in_channels = dataset.num_classes
+    out_channels = dataset.num_classes
+
+    if args['dataset_name'] == 'ogbn-proteins':
+    	in_channels = data.num_features
+    	out_channels = 112 # 112 talks
+    	print("in, out: ", in_channels, out_channels)
+
+    model = model_type(in_channels, out_channels, args)
     model = model.to('cuda' if torch.cuda.is_available() else 'cpu')
 
     return model
