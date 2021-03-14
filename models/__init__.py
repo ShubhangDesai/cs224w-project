@@ -12,7 +12,7 @@ def get_model(dataset, args):
     out_channels = dataset.num_classes
 
     if args['dataset_name'] == 'ogbn-proteins':
-    	in_channels = dataset.num_features
+    	in_channels = 8 # 8 edge features 
     	out_channels = 112 # 112 talks
     	print("in, out: ", in_channels, out_channels)
 
