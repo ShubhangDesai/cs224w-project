@@ -8,7 +8,7 @@ def get_model(dataset, args):
         model_type = IncepGCN
 
 
-    in_channels = dataset.num_classes
+    in_channels = dataset.num_node_features
     out_channels = dataset.num_classes
 
     if args['dataset_name'] == 'ogbn-proteins':
