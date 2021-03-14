@@ -35,6 +35,7 @@ class GNN(nn.Module):
             adj_t = self.dropedge(adj_t)
 
         for i in range(self.num_layers-1):
+            print("W shape: {}, x shape: {}".format(self.convs[i].weight.shape, x.shape))
             x = self.convs[i](x, adj_t)
             x = self.bns[i](x)
             x = F.relu(x)
