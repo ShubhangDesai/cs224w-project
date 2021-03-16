@@ -3,20 +3,17 @@ import torch_geometric.transforms as T
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 
 def get_data(args):
-    print("Enter")
     dataset = PygNodePropPredDataset(name=args['dataset_name'], transform=T.ToSparseTensor())
     evaluator = Evaluator(name=args['dataset_name'])
-    print("After")
 
     data = dataset[0]
     data.adj_t = data.adj_t.to_symmetric()
     print(args['dataset_name'])
     if args['dataset_name'] == "ogbn-proteins":
-        print("Start proteins")  
         data.x = data.adj_t.mean(dim=1)
+
+        # Pre-compute GCN normalization for adjacency matrix
         if args['model_type'] != 'gat' and args['model_type'] != 'graphsage':
-            print("GCN")
-            # Pre-compute GCN normalization.
             data.adj_t.set_value_(None)
             adj_t = data.adj_t.set_diag()
             deg = adj_t.sum(dim=1).to(torch.float)
