@@ -3,7 +3,7 @@ from data import *
 
 import numpy as np
 import argparse
-from torch_geometric.nn.models import CorrectAndSmooth
+# from torch_geometric.nn.models import CorrectAndSmooth
 
 def get_parser():
     parser = argparse.ArgumentParser()
@@ -114,8 +114,8 @@ if __name__ == '__main__':
             train_acc, valid_acc, test_acc, pred_soft = test(model, data, split_idx, evaluator) 
 
             # C&S
-            if args['cs']:
-                print('Correct and smooth...')
+            # if args['cs']:
+            #     print('Correct and smooth...')
 
                 # # Compute updated adjacency matrices
                 # adj_t = data.adj_t.to('cuda' if torch.cuda.is_available() else 'cpu')
