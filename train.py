@@ -25,6 +25,9 @@ def get_parser():
     parser.add_argument('--m', default=3, type=int) # Number of steps to remove perturbations
     parser.add_argument('--step_size', default=1e-3, type=float) # Number of steps to remove perturbations
 
+    # C&S Parameters
+    parser.add_argument('--cs', action='store_true')
+
     # GCN Parameters
     parser.add_argument('--num_heads', default=1, type=int)
 
