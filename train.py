@@ -63,7 +63,7 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
 
         for _ in range(flag_n_steps): # Gradient ascent
             loss.backward()
-            perturb.data = (perturb.detach() + flag_step_size*torch.sign(perturb.grad.detach())).detach() # Perturbation gradient ascent
+            perturb.data = (perturb.detach() + flag_step_size*torch.sign(perturb.grad.detach())).data # Perturbation gradient ascent
             perturb.grad[:] = 0.
 
             out = model(data.x + perturb, data.adj_t)[train_idx]
