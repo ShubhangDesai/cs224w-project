@@ -117,22 +117,22 @@ if __name__ == '__main__':
             if args['cs']:
                 print('Correct and smooth...')
 
-                # Compute updated adjacency matrices
-                adj_t = data.adj_t.to('cuda' if torch.cuda.is_available() else 'cpu')
-                deg = adj_t.sum(dim=1).to(torch.float)
-                deg_inv_sqrt = deg.pow_(-0.5)
-                deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0
-                DAD = deg_inv_sqrt.view(-1, 1) * adj_t * deg_inv_sqrt.view(1, -1) # D^(-1/2) A D^(-1/2)
-                DA = deg_inv_sqrt.view(-1, 1) * deg_inv_sqrt.view(-1, 1) * adj_t # D A
+                # # Compute updated adjacency matrices
+                # adj_t = data.adj_t.to('cuda' if torch.cuda.is_available() else 'cpu')
+                # deg = adj_t.sum(dim=1).to(torch.float)
+                # deg_inv_sqrt = deg.pow_(-0.5)
+                # deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0
+                # DAD = deg_inv_sqrt.view(-1, 1) * adj_t * deg_inv_sqrt.view(1, -1) # D^(-1/2) A D^(-1/2)
+                # DA = deg_inv_sqrt.view(-1, 1) * deg_inv_sqrt.view(-1, 1) * adj_t # D A
 
-                # Correct and Smooth
-                post_process = CorrectAndSmooth(num_correction_layers=args['cs_layers'], correction_alpha=args['alpha'],
-                                        num_smoothing_layers=args['cs_layers'], smoothing_alpha=args['alpha'])
-                pred_soft = post_process.correct(pred_soft, data.y[split_idx['train']], split_idx['train'], DAD)
-                pred_soft = post_process.smooth(pred_soft, data.y[split_idx['train']], split_idx['train'],DA)
+                # # Correct and Smooth
+                # post_process = CorrectAndSmooth(num_correction_layers=args['cs_layers'], correction_alpha=args['alpha'],
+                #                         num_smoothing_layers=args['cs_layers'], smoothing_alpha=args['alpha'])
+                # pred_soft = post_process.correct(pred_soft, data.y[split_idx['train']], split_idx['train'], DAD)
+                # pred_soft = post_process.smooth(pred_soft, data.y[split_idx['train']], split_idx['train'],DA)
 
-                # Compute final results
-                train_acc, valid_acc, test_acc = test(model, data, split_idx, evaluator, pred_soft) # Input new predictions
+                # # Compute final results
+                # train_acc, valid_acc, test_acc = test(model, data, split_idx, evaluator, pred_soft) # Input new predictions
 
             if valid_acc > best_valid_acc:
                 best_train_acc, best_valid_acc, best_test_acc = train_acc, valid_acc, test_acc
