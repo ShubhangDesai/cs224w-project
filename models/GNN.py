@@ -47,7 +47,7 @@ class GNN(nn.Module):
         for i in range(self.num_layers-1):
             print("Iteration: {}".format(i + 1))
             print("Before conv: ", x.shape)
-            print("Convs shape: ", self.convs[i].shape)
+            print("Convs shape: ", self.convs[i].weight.shape)
             x = self.convs[i](x, adj_t)
             print("After conv: ", x.shape)
             x = self.bns[i](x)
