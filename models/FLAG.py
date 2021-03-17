@@ -2,9 +2,9 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 
-def flag_train(model, data, train_idx, loss_fn, dropedge_rate, flag_steps, flag_step_size):
+def flag_train(model, data, train_label, train_idx, loss_fn, dropedge_rate, flag_steps, flag_step_size):
 	print("doing_flag")
-	
+
 	# Initialize adversarial perturbations
 	perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size) # Uniformation perturbations
 	perturb = perturb.to('cuda' if torch.cuda.is_available() else 'cpu').requires_grad_()
