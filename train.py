@@ -49,6 +49,7 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
     # Make perturbation
     # Apply perturbation to training
     out = None
+    loss = None
     if apply_flag: # FLAG training
         print("FLAG")
 
@@ -57,7 +58,7 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
         perturb = perturb.to('cuda' if torch.cuda.is_available() else 'cpu')
 
         out = model(data.x + perturb, data.adj_t)[train_idx]
-        loss = loss_fun(out, train_label)
+        loss = loss_fn(out, train_label)
         loss /= flag_n_steps
 
         for _ in range(flag_n_steps): # Gradient ascent
