@@ -27,7 +27,12 @@ class GNN(nn.Module):
 
         self.bns.append(nn.BatchNorm1d(args['hidden_dim']))
         for l in range(args['num_layers']-2):
-            self.convs.append(conv_type(args['num_heads'] * args['hidden_dim'], args['hidden_dim']))
+            # self.convs.append(conv_type(args['num_heads'] * args['hidden_dim'], args['hidden_dim']))
+            if args['model_type'] == 'gat':
+                self.convs.append(conv_type(args['hidden_dim'], args['hidden_dim'], heads=args['num_heads'], dropout=args['attn_dropout'])) # heads = 3
+            else:
+                self.convs.append(conv_type(args['hidden_dim'], args['hidden_dim']))
+                
             self.bns.append(nn.BatchNorm1d(args['hidden_dim']))
         self.convs.append(conv_type(args['num_heads'] * args['hidden_dim'], output_dim))
 
