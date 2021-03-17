@@ -1,4 +1,5 @@
 from models import *
+from models import FLAG
 from data import *
 
 import numpy as np
