@@ -49,6 +49,7 @@ class GNN(nn.Module):
             x = self.convs[i](x, adj_t)
             print("After conv: ", x.shape)
             x = self.bns[i](x)
+            print("After batch: ", x.shape)
             x = F.relu(x)
             x = F.dropout(x, p=self.dropout, training=self.training)
 
