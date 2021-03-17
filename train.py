@@ -56,6 +56,7 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
         # Initialize adversarial perturbations
         perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size).requires_grad_()
         perturb = perturb.to('cuda' if torch.cuda.is_available() else 'cpu')
+        print("perturb: ", perturb)
 
         out = model(data.x + perturb, data.adj_t)[train_idx]
         loss = loss_fn(out, train_label)
@@ -63,7 +64,8 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
 
         for _ in range(flag_n_steps): # Gradient ascent
             loss.backward()
-            perturb.data = (perturb.detach() + flag_step_size*torch.sign(perturb.grad.detach())).data # Perturbation gradient ascent
+            perturb.data = (perturb.detach()) 
+            # + flag_step_size*torch.sign(perturb.grad.detach())).data # Perturbation gradient ascent
             perturb.grad[:] = 0.
 
             out = model(data.x + perturb, data.adj_t)[train_idx]
