@@ -21,11 +21,11 @@ class GNN(nn.Module):
         self.bns = nn.ModuleList()
 
         if args['model_type'] == 'gat':
-            self.convs.append(conv_type(input_dim, args['hidden_dim'], heads=args['num_heads'], dropout=args['attn_dropout'])) # heads = 3
+            self.convs.append(conv_type(input_dim, args['hidden_dim'], dropout=args['attn_dropout'])) # heads = 3
         else:
             self.convs.append(conv_type(input_dim, args['hidden_dim']))
+        self.bns.append(nn.BatchNorm1d(args['hidden_dim']))
 
-        self.bns.append(nn.BatchNorm1d(args['num_heads'] * args['hidden_dim']))
         for l in range(args['num_layers']-2):
             # self.convs.append(conv_type(args['num_heads'] * args['hidden_dim'], args['hidden_dim']))
             if args['model_type'] == 'gat':
@@ -45,12 +45,12 @@ class GNN(nn.Module):
             adj_t = self.dropedge(adj_t)
 
         for i in range(self.num_layers-1):
-            print("Iteration: {}".format(i + 1))
-            print("Before conv: ", x.shape)
+            # print("Iteration: {}".format(i + 1))
+            # print("Before conv: ", x.shape)
             x = self.convs[i](x, adj_t)
-            print("After conv: ", x.shape)
+            # print("After conv: ", x.shape)
             x = self.bns[i](x)
-            print("After batch: ", x.shape)
+            # print("After batch: ", x.shape)
             x = F.relu(x)
             x = F.dropout(x, p=self.dropout, training=self.training)
 
