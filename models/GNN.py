@@ -34,6 +34,7 @@ class GNN(nn.Module):
                 self.convs.append(conv_type(args['hidden_dim'], args['hidden_dim']))
 
             self.bns.append(nn.BatchNorm1d(args['num_heads'] * args['hidden_dim']))
+
         self.convs.append(conv_type(args['num_heads'] * args['hidden_dim'], output_dim))
 
         self.dropout = args['dropout']
@@ -46,6 +47,7 @@ class GNN(nn.Module):
         for i in range(self.num_layers-1):
             print("Iteration: {}".format(i + 1))
             print("Before conv: ", x.shape)
+            print("Convs shape: ", self.convs[i].shape)
             x = self.convs[i](x, adj_t)
             print("After conv: ", x.shape)
             x = self.bns[i](x)
