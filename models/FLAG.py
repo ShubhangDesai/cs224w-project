@@ -1,6 +1,5 @@
 import torch
 import torch.nn.functional as F
-from torch_geometric
 import numpy as np
 
 def flag_train(self)
