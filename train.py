@@ -1,5 +1,4 @@
 from models import *
-from models import FLAG
 from data import *
 
 import numpy as np
@@ -50,7 +49,7 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
     # out = None
     loss = None
     if apply_flag: # FLAG training
-        loss, out = FLAG.flag_train()
+        loss, out = flag_train()
 
         # # Initialize adversarial perturbations
         # perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size) # Uniformation perturbations
