@@ -32,7 +32,7 @@ class GNN(nn.Module):
                 self.convs.append(conv_type(args['hidden_dim'], args['hidden_dim'], heads=args['num_heads'], dropout=args['attn_dropout'])) # heads = 3
             else:
                 self.convs.append(conv_type(args['hidden_dim'], args['hidden_dim']))
-                
+
             self.bns.append(nn.BatchNorm1d(args['hidden_dim']))
         self.convs.append(conv_type(args['num_heads'] * args['hidden_dim'], output_dim))
 
@@ -44,6 +44,7 @@ class GNN(nn.Module):
             adj_t = self.dropedge(adj_t)
 
         for i in range(self.num_layers-1):
+            print("Iteration: {}".format(i + 1))
             x = self.convs[i](x, adj_t)
             x = self.bns[i](x)
             x = F.relu(x)
