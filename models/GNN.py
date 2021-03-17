@@ -30,7 +30,7 @@ class GNN(nn.Module):
             else:
                 self.convs.append(conv_type(args['hidden_dim'], args['hidden_dim']))
 
-            self.bns.append(nn.BatchNorm1d(args['hidden_dim']))
+            self.bns.append(nn.BatchNorm1d(args['num_heads'] * args['hidden_dim']))
 
         self.convs.append(conv_type(args['num_heads'] * args['hidden_dim'], output_dim))
 
