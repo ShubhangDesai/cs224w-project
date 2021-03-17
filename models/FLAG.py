@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from torch_geometric
 import numpy as np
 
-def apply_flag(self)
+def flag_train(self)
 	print("doing_flag")
     # # Initialize adversarial perturbations
     # perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size) # Uniformation perturbations
@@ -20,4 +20,4 @@ def apply_flag(self)
     #     out = model(data.x + perturb, data.adj_t)[train_idx]
     #     loss = loss_fn(out, train_label) / flag_n_steps
 
-    # return loss
+    # return loss, out
