@@ -8,19 +8,20 @@ def get_data(args):
 
     data = dataset[0]
     data.adj_t = data.adj_t.to_symmetric()
-    print(args['dataset_name'])
+    print("Dataset: ", args['dataset_name'])
+
     if args['dataset_name'] == "ogbn-proteins":
         data.x = data.adj_t.mean(dim=1)
 
-        # Pre-compute GCN normalization for adjacency matrix
         if args['model_type'] != 'gat' and args['model_type'] != 'graphsage':
+            # Pre-compute GCN normalization for adjacency matrix
             data.adj_t.set_value_(None)
             adj_t = data.adj_t.set_diag()
-            deg = adj_t.sum(dim=1).to(torch.float)
+            deg = adj_t.sum(dim=1).to(torch.float) # Diagonal matrix
             deg_inv_sqrt = deg.pow(-0.5)
-            deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0
-            adj_t = deg_inv_sqrt.view(-1, 1) * adj_t * deg_inv_sqrt.view(1, -1)
-            data.adj_t = adj_t
+            deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0 # D^(-1/2)
+            adj_t = deg_inv_sqrt.view(-1, 1) * adj_t * deg_inv_sqrt.view(1, -1) # D^(-1/2) A D^(-1/2)
+            data.adj_t = adj_t 
 
     split_idx = dataset.get_idx_split()
 

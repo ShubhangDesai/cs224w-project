@@ -16,7 +16,14 @@ def get_parser():
     parser.add_argument('--num_layers', default=3, type=int)
     parser.add_argument('--hidden_dim', default=32, type=int)
     parser.add_argument('--dropout', default=0.5, type=float)
+
+    # Dropedge parameters
     parser.add_argument('--dropedge', default=0.05, type=float)
+
+    # FLAG parameters
+    parser.add_argument('--flag', action='store_true')
+    parser.add_argument('--m', default=3, type=int) # Number of steps to remove perturbations
+    parser.add_argument('--step_size', default=1e-3, type=float) # Number of steps to remove perturbations
 
     # GCN Parameters
     parser.add_argument('--num_heads', default=1, type=int)
@@ -32,11 +39,44 @@ def get_parser():
 
     return parser
 
-def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate):
+def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag):
     model.train()
 
     optimizer.zero_grad()
     out = model(data.x, data.adj_t)[train_idx]
+
+    # Add FLAG: unbaised and biased perturbations
+    # Make perturbation
+    # Apply perturbation to training
+    if apply_flag:
+        print(apply_flag)
+        # uniform_
+
+# def flag(model_forward, perturb_shape, y, args, optimizer, device, criterion) :
+#     model, forward = model_forward
+#     model.train()
+#     optimizer.zero_grad()
+
+#     perturb = torch.FloatTensor(*perturb_shape).uniform_(-args.step_size, args.step_size).to(device)
+#     perturb.requires_grad_()
+#     out = forward(perturb)
+#     loss = criterion(out, y)
+#     loss /= args.m
+
+#     for _ in range(args.m-1):
+#         loss.backward()
+#         perturb_data = perturb.detach() + args.step_size * torch.sign(perturb.grad.detach())
+#         perturb.data = perturb_data.data
+#         perturb.grad[:] = 0
+
+#         out = forward(perturb)
+#         loss = criterion(out, y)
+#         loss /= args.m
+
+#     loss.backward()
+#     optimizer.step()
+
+#     return loss, out
 
     train_label = data.y.squeeze(1)[train_idx]
     loss = loss_fn(out, train_label)
@@ -90,7 +130,7 @@ if __name__ == '__main__':
 
         best_train_acc, best_valid_acc, best_test_acc = 0, 0, 0
         for epoch in range(1, args['epochs'] + 1):
-            loss = train(model, data, split_idx['train'], optimizer, loss_fn, args['dropedge'])
+            loss = train(model, data, split_idx['train'], optimizer, loss_fn, args['dropedge'], args['flag'])
             train_acc, valid_acc, test_acc = test(model, data, split_idx, evaluator)
 
             if valid_acc > best_valid_acc:
