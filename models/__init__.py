@@ -1,3 +1,4 @@
+from .FLAG import *
 from .IncepGCN import *
 from .GNN import *
 
