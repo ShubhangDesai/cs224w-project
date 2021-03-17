@@ -27,6 +27,8 @@ def get_parser():
 
     # C&S Parameters
     parser.add_argument('--cs', action='store_true')
+    parser.add_argument('--cs_layers', default=50, type=int)
+    parser.add_argument('--alpha', default=0.8, type=float)
 
     # GCN Parameters
     parser.add_argument('--num_heads', default=1, type=int)
@@ -67,11 +69,11 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
     return loss.item()
 
 @torch.no_grad()
-def test(model, data, split_idx, evaluator):
+def test(model, data, split_idx, evaluator, y_pred=None):
     model.eval()
 
     out = model(data.x, data.adj_t)
-    y_pred = out.argmax(dim=-1, keepdim=True)
+    y_pred = out.argmax(dim=-1, keepdim=True) if y_pred is None else y_pred # Check if soft label for C&S
 
     train_acc = evaluator.eval({
         'y_true': data.y[split_idx['train']],
@@ -86,10 +88,10 @@ def test(model, data, split_idx, evaluator):
         'y_pred': y_pred[split_idx['test']],
     })['acc']
 
-    del data, split_idx, out, y_pred
+    del data, split_idx, out #, y_pred
     torch.cuda.empty_cache()
 
-    return train_acc, valid_acc, test_acc
+    return train_acc, valid_acc, test_acc, y_pred
 
 if __name__ == '__main__':
     args = vars(get_parser().parse_args())
@@ -108,7 +110,28 @@ if __name__ == '__main__':
         best_train_acc, best_valid_acc, best_test_acc = 0, 0, 0
         for epoch in range(1, args['epochs'] + 1):
             loss = train(model, data, split_idx['train'], optimizer, loss_fn, args['dropedge'], args['flag'], args['m'], args['step_size'])
-            train_acc, valid_acc, test_acc = test(model, data, split_idx, evaluator)
+            train_acc, valid_acc, test_acc, pred_soft = test(model, data, split_idx, evaluator) 
+
+            # C&S
+            if args['cs']:
+                print('Correct and smooth...')
+
+                # Compute updated adjacency matrices
+                adj_t = data.adj_t.to('cuda' if torch.cuda.is_available() else 'cpu')
+                deg = adj_t.sum(dim=1).to(torch.float)
+                deg_inv_sqrt = deg.pow_(-0.5)
+                deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0
+                DAD = deg_inv_sqrt.view(-1, 1) * adj_t * deg_inv_sqrt.view(1, -1) # D^(-1/2) A D^(-1/2)
+                DA = deg_inv_sqrt.view(-1, 1) * deg_inv_sqrt.view(-1, 1) * adj_t # D A
+
+                # Correct and Smooth
+                post = CorrectAndSmooth(num_correction_layers=args['cs_layers'], correction_alpha=args['alpha'],
+                                        num_smoothing_layers=args['cs_layers'], smoothing_alpha=args['alpha'])
+                pred_soft = post.correct(pred_soft, data.y[split_idx['train']], split_idx['train'], DAD)
+                pred_soft = post.smooth(pred_soft, data.y[split_idx['train']], split_idx['train'],DA)
+
+                # Compute final results
+                train_acc, valid_acc, test_acc = test(model, data, split_idx, evaluator, pred_soft) # Input new predictions
 
             if valid_acc > best_valid_acc:
                 best_train_acc, best_valid_acc, best_test_acc = train_acc, valid_acc, test_acc
