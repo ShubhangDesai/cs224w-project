@@ -39,7 +39,7 @@ def get_parser():
     parser.add_argument('--self_loops', default=True, type=bool)
 
     # GAT Parameters: num_heads = 3
-     parser.add_argument('--attn_dropout', default=0.05, type=float)
+    parser.add_argument('--attn_dropout', default=0.05, type=float)
 
     # Training Parameters
     parser.add_argument('--lr', default=0.01, type=float)
