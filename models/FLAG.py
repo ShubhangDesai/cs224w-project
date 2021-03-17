@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 
-def flag_train(self)
+def flag_train(self):
 	print("doing_flag")
     # # Initialize adversarial perturbations
     # perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size) # Uniformation perturbations
