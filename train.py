@@ -54,9 +54,9 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
         print("FLAG")
 
         # Initialize adversarial perturbations
-        perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size).requires_grad_()
+        perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size)
         print("perturb grad 1: ", perturb.grad)
-        perturb = perturb.to('cuda' if torch.cuda.is_available() else 'cpu')
+        perturb = perturb.to('cuda' if torch.cuda.is_available() else 'cpu').requires_grad_()
         print("perturb: ", perturb)
         print("perturb grad 2: ", perturb.grad)
 
