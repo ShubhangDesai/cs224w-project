@@ -1,5 +1,6 @@
-from models import *
 from data import *
+from losses import *
+from models import *
 
 import numpy as np
 import argparse
@@ -14,9 +15,9 @@ def get_parser():
 
     # Common Model Parameters
     parser.add_argument('--num_layers', default=3, type=int)
-    parser.add_argument('--hidden_dim', default=32, type=int)
+    parser.add_argument('--hidden_dim', default=128, type=int)
     parser.add_argument('--dropout', default=0.5, type=float)
-    parser.add_argument('--dropedge', default=0.05, type=float)
+    parser.add_argument('--dropedge', default=0, type=float)
 
     # GCN Parameters
     parser.add_argument('--num_heads', default=1, type=int)
@@ -25,6 +26,10 @@ def get_parser():
     parser.add_argument('--num_branches', default=3, type=int)
     parser.add_argument('--self_loops', default=True, type=bool)
 
+    # Loss Parameters
+    parser.add_argument('--coral_lambda', default=0, type=float)
+    parser.add_argument('--num_loss_layers', default=1, type=int)
+
     # Training Parameters
     parser.add_argument('--lr', default=0.01, type=float)
     parser.add_argument('--epochs', default=100, type=int)
@@ -32,19 +37,17 @@ def get_parser():
 
     return parser
 
-def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate):
+def train(model, data, split_idx, optimizer, loss_fn):
     model.train()
 
     optimizer.zero_grad()
-    out = model(data.x, data.adj_t)[train_idx]
-
-    train_label = data.y.squeeze(1)[train_idx]
-    loss = loss_fn(out, train_label)
+    out, hiddens = model(data.x, data.adj_t)
+    loss = loss_fn(out, data.y.squeeze(1), split_idx, hiddens)
 
     loss.backward()
     optimizer.step()
 
-    del data, train_idx, out
+    del data, split_idx, out, hiddens
     torch.cuda.empty_cache()
 
     return loss.item()
@@ -78,7 +81,7 @@ if __name__ == '__main__':
     args = vars(get_parser().parse_args())
 
     data, dataset, split_idx, evaluator = get_data(args)
-    loss_fn = F.nll_loss
+    loss_fn = get_loss(args)
 
     best_train_accs, best_valid_accs, best_test_accs = [], [], []
     for run in range(1, args['runs'] + 1):
@@ -90,7 +93,7 @@ if __name__ == '__main__':
 
         best_train_acc, best_valid_acc, best_test_acc = 0, 0, 0
         for epoch in range(1, args['epochs'] + 1):
-            loss = train(model, data, split_idx['train'], optimizer, loss_fn, args['dropedge'])
+            loss = train(model, data, split_idx, optimizer, loss_fn)
             train_acc, valid_acc, test_acc = test(model, data, split_idx, evaluator)
 
             if valid_acc > best_valid_acc:

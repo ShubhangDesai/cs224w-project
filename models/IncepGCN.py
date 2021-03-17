@@ -94,7 +94,11 @@ class IncepGCN(nn.Module):
     for block in self.blocks: # Hidden inception blocks
       out = block(out, adj_t)
 
+    hiddens = [out]
+
     out = self.out_layer(out, adj_t)
     out = F.log_softmax(out, dim=-1)
 
+    if self.training:
+        return out, hiddens
     return out
