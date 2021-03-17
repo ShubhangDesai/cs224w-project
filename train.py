@@ -39,35 +39,32 @@ def get_parser():
 
     return parser
 
-def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag, flag_n_steps, flag_step_size):
+def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag, flag_steps, flag_step_size):
     model.train()
     optimizer.zero_grad()
     train_label = data.y.squeeze(1)[train_idx] # Get labels
 
 
-    # Add FLAG: unbaised and biased perturbations
-    # Make perturbation
-    # Apply perturbation to training
-    out = None
+    # Add FLAG: unbiased perturbation
+    # out = None
     loss = None
     if apply_flag: # FLAG training
+        loss = apply_flag()
 
-        # Initialize adversarial perturbations
-        perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size)
-        perturb = perturb.to('cuda' if torch.cuda.is_available() else 'cpu').requires_grad_()
+        # # Initialize adversarial perturbations
+        # perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size) # Uniformation perturbations
+        # perturb = perturb.to('cuda' if torch.cuda.is_available() else 'cpu').requires_grad_()
 
-        out = model(data.x + perturb, data.adj_t)[train_idx]
-        loss = loss_fn(out, train_label)
-        loss /= flag_n_steps
+        # out = model(data.x + perturb, data.adj_t)[train_idx]
+        # loss = loss_fn(out, train_label) / flag_n_steps
 
-        for _ in range(flag_n_steps): # Gradient ascent
-            loss.backward()
-            perturb.data = (perturb.detach() + flag_step_size*torch.sign(perturb.grad.detach())).data # Perturbation gradient ascent
-            perturb.grad[:] = 0.
+        # for _ in range(flag_n_steps): # Gradient ascent
+        #     loss.backward()
+        #     perturb.data = (perturb.detach() + flag_step_size*torch.sign(perturb.grad.detach())).data # Perturbation gradient ascent
+        #     perturb.grad[:] = 0.
 
-            out = model(data.x + perturb, data.adj_t)[train_idx]
-            loss = loss_fn(out, train_label)
-            loss /= flag_n_steps
+        #     out = model(data.x + perturb, data.adj_t)[train_idx]
+        #     loss = loss_fn(out, train_label) / flag_n_steps
 
     else:
         # Get predictions
