@@ -39,47 +39,42 @@ def get_parser():
 
     return parser
 
-def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag):
+def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag, flag_n_steps, flag_step_size):
     model.train()
-
     optimizer.zero_grad()
-    out = model(data.x, data.adj_t)[train_idx]
+    train_label = data.y.squeeze(1)[train_idx] # Get labels
+
 
     # Add FLAG: unbaised and biased perturbations
     # Make perturbation
     # Apply perturbation to training
-    if apply_flag:
-        print(apply_flag)
-        # uniform_
+    out = None
+    if apply_flag: # FLAG training
+        print("FLAG")
 
-# def flag(model_forward, perturb_shape, y, args, optimizer, device, criterion) :
-#     model, forward = model_forward
-#     model.train()
-#     optimizer.zero_grad()
+        # Initialize adversarial perturbations
+        perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size).requires_grad_()
+        perturb = perturb.to('cuda' if torch.cuda.is_available() else 'cpu')
 
-#     perturb = torch.FloatTensor(*perturb_shape).uniform_(-args.step_size, args.step_size).to(device)
-#     perturb.requires_grad_()
-#     out = forward(perturb)
-#     loss = criterion(out, y)
-#     loss /= args.m
+        out = model(data.x + perturb, data.adj_t)[train_idx]
+        loss = loss_fun(out, train_label)
+        loss /= flag_n_steps
 
-#     for _ in range(args.m-1):
-#         loss.backward()
-#         perturb_data = perturb.detach() + args.step_size * torch.sign(perturb.grad.detach())
-#         perturb.data = perturb_data.data
-#         perturb.grad[:] = 0
+        for _ in range(flag_n_steps): # Gradient ascent
+            loss.backward()
+            perturb.data = (perturb.detach() + flag_step_size*torch.sign(perturb.grad.detach())).detach() # Perturbation gradient ascent
+            perturb.grad[:] = 0.
 
-#         out = forward(perturb)
-#         loss = criterion(out, y)
-#         loss /= args.m
+            out = model(data.x + perturb, data.adj_t)[train_idx]
+            loss = loss_fun(out, train_label)
+            loss /= flag_n_steps
 
-#     loss.backward()
-#     optimizer.step()
+    else:
+        # Get predictions
+        out = model(data.x, data.adj_t)[train_idx]
 
-#     return loss, out
-
-    train_label = data.y.squeeze(1)[train_idx]
-    loss = loss_fn(out, train_label)
+        # Compute loss
+        loss = loss_fn(out, train_label)
 
     loss.backward()
     optimizer.step()
@@ -130,7 +125,7 @@ if __name__ == '__main__':
 
         best_train_acc, best_valid_acc, best_test_acc = 0, 0, 0
         for epoch in range(1, args['epochs'] + 1):
-            loss = train(model, data, split_idx['train'], optimizer, loss_fn, args['dropedge'], args['flag'])
+            loss = train(model, data, split_idx['train'], optimizer, loss_fn, args['dropedge'], args['flag'], args['m'], args['step_size'])
             train_acc, valid_acc, test_acc = test(model, data, split_idx, evaluator)
 
             if valid_acc > best_valid_acc:
