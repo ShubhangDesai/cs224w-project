@@ -51,7 +51,6 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
     out = None
     loss = None
     if apply_flag: # FLAG training
-        print("FLAG")
 
         # Initialize adversarial perturbations
         perturb = torch.FloatTensor(data.x.shape).uniform_(-flag_step_size, flag_step_size)
