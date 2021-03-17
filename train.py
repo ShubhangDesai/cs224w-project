@@ -1,9 +1,9 @@
 from models import *
 from data import *
 
-from torch_geometric.nn.models import CorrectAndSmooth
 import numpy as np
 import argparse
+from torch_geometric.nn.models import CorrectAndSmooth
 
 def get_parser():
     parser = argparse.ArgumentParser()
