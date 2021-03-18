@@ -34,13 +34,18 @@ class GNN(nn.Module):
         if self.training and self.dropedge is not None:
             adj_t = self.dropedge(adj_t)
 
+        hiddens = []
         for i in range(self.num_layers-1):
             x = self.convs[i](x, adj_t)
             x = self.bns[i](x)
             x = F.relu(x)
             x = F.dropout(x, p=self.dropout, training=self.training)
 
+            hiddens.append(x)
+
         x = self.convs[-1](x, adj_t)
         x = F.log_softmax(x, dim=1)
 
+        if self.training:
+            return x, hiddens
         return x
