@@ -3,7 +3,7 @@ from data import *
 
 import numpy as np
 import argparse
-# from torch_geometric.nn.models import CorrectAndSmooth
+from torch_geometric.nn.models import CorrectAndSmooth
 
 def get_parser():
     parser = argparse.ArgumentParser()
