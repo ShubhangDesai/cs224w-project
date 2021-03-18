@@ -11,6 +11,7 @@ class GNN(nn.Module):
     def __init__(self, input_dim, output_dim, args):
         super(GNN, self).__init__()
 
+        self.model_type = args['model_type']
         self.dropedge = Dropedge(args['dropedge']) if args['dropedge'] != 0 else None
 
         if args['model_type'] == 'gcn': conv_type = pyg_nn.GCNConv
@@ -43,7 +44,7 @@ class GNN(nn.Module):
 
         for i in range(self.num_layers-1):
             x = self.convs[i](x, adj_t)
-            if args['model_type'] != 'gat':
+            if self.model_type  != 'gat':
                 x = self.bns[i](x)
             x = F.relu(x)
             x = F.dropout(x, p=self.dropout, training=self.training)
