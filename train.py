@@ -53,7 +53,6 @@ def train(model, data, train_idx, optimizer, loss_fn, dropedge_rate, apply_flag,
     optimizer.zero_grad()
     train_label = data.y.squeeze(1)[train_idx] # Get labels
 
-
     # Add FLAG: unbiased perturbation
     out = None
     loss = None
