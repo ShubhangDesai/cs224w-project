@@ -43,8 +43,12 @@ class GNN(nn.Module):
             adj_t = self.dropedge(adj_t)
 
         for i in range(self.num_layers-1):
+            print("Iteration: ".format(i+1))
+            print("Before conv: ", x.shape)
             x = self.convs[i](x, adj_t)
+            print("After conv: ", x.shape)
             if self.model_type  != 'gat':
+                print("Whoops")
                 x = self.bns[i](x)
             x = F.relu(x)
             x = F.dropout(x, p=self.dropout, training=self.training)
