@@ -22,7 +22,7 @@ class GNN(nn.Module):
         self.bns = nn.ModuleList()
 
         if args['model_type'] == 'gat':
-                self.convs.append(conv_type(args['hidden_dim'], args['hidden_dim'], heads=args['num_heads'], dropout=args['attn_dropout'])) # heads = 3
+                self.convs.append(conv_type(input_dim, args['hidden_dim'], heads=args['num_heads'], dropout=args['attn_dropout'])) # heads = 3
         else:
             self.convs.append(conv_type(input_dim, args['hidden_dim']))
             self.bns.append(nn.BatchNorm1d(args['hidden_dim']))
