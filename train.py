@@ -138,7 +138,10 @@ if __name__ == '__main__':
 
         del model
         print()
-
+        
+    print('Model')
+    print(args)
+    print('=' * 20)
     print('Final Results')
     print('=' * 20)
     print(f'Best Train Acc: {100*np.mean(best_train_accs):0.2f}% ± {100*np.std(best_train_accs):0.2f}%')
